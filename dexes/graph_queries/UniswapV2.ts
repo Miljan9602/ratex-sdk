@@ -20,6 +20,11 @@ export default class UniswapV2 implements DEXGraphFunctionality {
   }
   // @reminder add uniswapv2 real endpoint for arbitrum
   setEndpoint(chainId: number, graphApiKey: string): void {
+
+    if (chainId == 1329) {
+      this.endpoint = `https://api.goldsky.com/api/public/project_clu1fg6ajhsho01x7ajld3f5a/subgraphs/dragonswap-prod/1.0.0/gn`
+    }
+
     if (chainId == 1) {
       this.endpoint = `https://gateway-arbitrum.network.thegraph.com/api/${graphApiKey}/subgraphs/id/EYCKATKGBKLWvSfwvBjzfCBmGwYNdVkduYXVivCsLRFu`
     }

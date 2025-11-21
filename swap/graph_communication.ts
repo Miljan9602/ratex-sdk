@@ -10,6 +10,7 @@ import CamelotV2 from '../dexes/graph_queries/CamelotV2';
 
 let initializedMainnet = false
 let initializedArbitrum = false
+let initializedSei = false;
 let initializedDexes: DEXGraphFunctionality[] = []
 let dexesPools: Map<DEXGraphFunctionality, PoolInfo[]> = new Map<DEXGraphFunctionality, PoolInfo[]>()
 
@@ -58,13 +59,24 @@ async function checkInitializedDexes(chainId: number, graphApiKey: string, dexes
   if (chainId === 1 && !initializedMainnet) {
     await initializeDexes(chainId, graphApiKey, dexes)
     initializedArbitrum = false
+    initializedSei = false
     initializedMainnet = true
   }
   if (chainId === 42161 && !initializedArbitrum) {
     await initializeDexes(chainId, graphApiKey, dexes)
     initializedMainnet = false
+    initializedSei = false
     initializedArbitrum = true
   }
+
+  if (chainId === 1329 && !initializedSei)
+  {
+    await initializeDexes(chainId, graphApiKey, dexes)
+    initializedMainnet = false
+    initializedArbitrum = false
+    initializedSei = true
+  }
+
 }
 
 /*   Returns dictionary of dexes and their poolIds for token1 and token2:

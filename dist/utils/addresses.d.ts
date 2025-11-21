@@ -1,5 +1,6 @@
 export declare const addresses: {
     name: string;
+    uniQuoterV2: string;
     wethToken: string;
     daiToken: string;
     usdtToken: string;
@@ -11,9 +12,6 @@ export declare const addresses: {
     gmxToken: string;
     sushiRouter: string;
     sushiFactory: string;
-    uniQuoter: string;
-    uniQuoterV2: string;
-    uniRouter: string;
     univ3_wbtc_eth_pool_0_05: string;
     univ3_wbtc_eth_pool_0_3: string;
     sushi_wbtc_eth_pool: string;

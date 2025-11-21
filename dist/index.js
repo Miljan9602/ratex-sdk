@@ -25,12 +25,8 @@ class RateX {
     }
     ;
     async getQuote(tokenIn, tokenOut, amountIn) {
-        const preFetchPools = Date.now();
         const pools = await (0, graph_communication_1.fetchPoolsData)(tokenIn, tokenOut, 5, 5, this.chainId, this.rpcProvider, this.graphApiKey, this.dexes);
-        const middle = Date.now();
         const route = await (0, main_1.findRoute)(tokenIn, tokenOut, amountIn, pools, this.chainId);
-        const finished = Date.now();
-        console.log(middle - preFetchPools);
         return route;
     }
     async getSwapCalldata(tokenIn, tokenOut, amountIn, slippagePercentage, recipient, deadlineInMinutes) {

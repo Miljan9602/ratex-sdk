@@ -18,6 +18,9 @@ class UniswapV3 {
         return object;
     }
     setEndpoint(chainId, graphApiKey) {
+        if (chainId == 1329) {
+            this.endpoint = 'https://api.goldsky.com/api/public/project_clu1fg6ajhsho01x7ajld3f5a/subgraphs/dragonswap-v3-prod/1.0.5/gn';
+        }
         if (chainId == 1) {
             this.endpoint = `https://gateway-arbitrum.network.thegraph.com/api/${graphApiKey}/subgraphs/id/5zvR82QoaXYFyDEKLZ9t6v9adgnptxYpKpSbxtgVENFV`;
         }
