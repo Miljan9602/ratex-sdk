@@ -15,7 +15,7 @@ const object_hash_1 = __importDefault(require("object-hash"));
 async function findRouteWithIterativeSplitting(tokenA, tokenB, amountIn, pools, chainId) {
     const graph = (0, multiHopSwap_1.createGraph)(pools);
     // percentage of the amountIn that we split into
-    const step = 5;
+    const step = 2;
     let amountOut = BigInt(0);
     const poolMap = new Map(pools.map((pool) => [pool.poolId, pool]));
     const routes = new Map();

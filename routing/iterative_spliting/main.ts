@@ -13,7 +13,8 @@ async function findRouteWithIterativeSplitting(tokenA: string, tokenB: string, a
     const graph = createGraph(pools)
 
     // percentage of the amountIn that we split into
-    const step: number = 5
+    const step: number = 2
+    
     let amountOut: bigint = BigInt(0)
     const poolMap: Map<string, Pool> = new Map<string, Pool>(pools.map((pool: Pool) => [pool.poolId, pool]))
     const routes: Map<string, Route> = new Map<string, Route>()
