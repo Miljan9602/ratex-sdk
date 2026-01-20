@@ -1,8 +1,47 @@
 import { myLocalStorage } from "../../swap/my_local_storage";
 import { Quote, Route, Pool, PoolInfo } from "../../utils/types/types";
 import { createGraph, multiHopSwap } from "./multiHopSwap";
-import objectHash from "object-hash";
 
+// Simple route key - just concatenate pool IDs (much faster than object-hash)
+function getRouteKey(swaps: { poolId: string }[]): string {
+    return swaps.map(s => s.poolId).join('→');
+}
+
+// Graph cache for performance optimization
+interface CachedGraph {
+    graph: Map<string, Pool[]>;
+    poolIds: string; // Hash of pool IDs to detect changes
+    timestamp: number;
+}
+
+let graphCache: CachedGraph | null = null;
+const GRAPH_CACHE_TTL_MS = 2000; // 2 second cache
+
+function getPoolsHash(pools: Pool[]): string {
+    return pools.map(p => p.poolId).sort().join(',');
+}
+
+function getCachedGraph(pools: Pool[]): Map<string, Pool[]> {
+    const poolsHash = getPoolsHash(pools);
+    const now = Date.now();
+
+    // Return cached graph if valid
+    if (graphCache &&
+        graphCache.poolIds === poolsHash &&
+        now - graphCache.timestamp < GRAPH_CACHE_TTL_MS) {
+        return graphCache.graph;
+    }
+
+    // Create new graph and cache it
+    const graph = createGraph(pools);
+    graphCache = {
+        graph,
+        poolIds: poolsHash,
+        timestamp: now
+    };
+
+    return graph;
+}
 
 /*  Simple algorithm that splits the input amount into (100/step) parts of step% each and finds the best route for each split.
     The algorithm to find the best route for each iteration finds the route with the highest output amount.
@@ -10,10 +49,10 @@ import objectHash from "object-hash";
     After each iteration, the pools are updated with the amounts that passed through them.
 */
 async function findRouteWithIterativeSplitting(tokenA: string, tokenB: string, amountIn: bigint, pools: Pool[], chainId: number): Promise<Quote> {
-    const graph = createGraph(pools)
+    const graph = getCachedGraph(pools)
 
-    // percentage of the amountIn that we split into
-    const step: number = 2
+    // percentage of the amountIn that we split into (5% = 20 iterations, faster than 2% = 50 iterations)
+    const step: number = 5
 
     let amountOut: bigint = BigInt(0)
     const poolMap: Map<string, Pool> = new Map<string, Pool>(pools.map((pool: Pool) => [pool.poolId, pool]))
@@ -22,7 +61,7 @@ async function findRouteWithIterativeSplitting(tokenA: string, tokenB: string, a
 
     for (let i = 0; i < 100; i += step) {
         const route: Route = multiHopSwap(splitAmountIn, tokenA, tokenB, graph)
-        const routeHash = objectHash(route.swaps)
+        const routeHash = getRouteKey(route.swaps)
 
         let existingRoute: Route | undefined = routes.get(routeHash)
         if (!existingRoute) {

@@ -12,7 +12,7 @@ class UniswapState {
     static resetPoolState(poolAddress) {
         const poolState = this.startingPoolStateMap.get(poolAddress.toLowerCase());
         if (poolState) {
-            this.poolStateMap.set(poolAddress.toLowerCase(), poolState);
+            this.poolStateMap.set(poolAddress.toLowerCase(), poolState.clone());
         }
     }
     static async getPoolsDataFromContract(pools, chainId, rpcProvider) {

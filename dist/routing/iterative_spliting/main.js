@@ -1,28 +1,51 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.findRouteWithIterativeSplitting = findRouteWithIterativeSplitting;
 const my_local_storage_1 = require("../../swap/my_local_storage");
 const multiHopSwap_1 = require("./multiHopSwap");
-const object_hash_1 = __importDefault(require("object-hash"));
+// Simple route key - just concatenate pool IDs (much faster than object-hash)
+function getRouteKey(swaps) {
+    return swaps.map(s => s.poolId).join('→');
+}
+let graphCache = null;
+const GRAPH_CACHE_TTL_MS = 2000; // 2 second cache
+function getPoolsHash(pools) {
+    return pools.map(p => p.poolId).sort().join(',');
+}
+function getCachedGraph(pools) {
+    const poolsHash = getPoolsHash(pools);
+    const now = Date.now();
+    // Return cached graph if valid
+    if (graphCache &&
+        graphCache.poolIds === poolsHash &&
+        now - graphCache.timestamp < GRAPH_CACHE_TTL_MS) {
+        return graphCache.graph;
+    }
+    // Create new graph and cache it
+    const graph = (0, multiHopSwap_1.createGraph)(pools);
+    graphCache = {
+        graph,
+        poolIds: poolsHash,
+        timestamp: now
+    };
+    return graph;
+}
 /*  Simple algorithm that splits the input amount into (100/step) parts of step% each and finds the best route for each split.
     The algorithm to find the best route for each iteration finds the route with the highest output amount.
     (code is seen in ./multiHopSwap.ts)
     After each iteration, the pools are updated with the amounts that passed through them.
 */
 async function findRouteWithIterativeSplitting(tokenA, tokenB, amountIn, pools, chainId) {
-    const graph = (0, multiHopSwap_1.createGraph)(pools);
-    // percentage of the amountIn that we split into
-    const step = 2;
+    const graph = getCachedGraph(pools);
+    // percentage of the amountIn that we split into (5% = 20 iterations, faster than 2% = 50 iterations)
+    const step = 5;
     let amountOut = BigInt(0);
     const poolMap = new Map(pools.map((pool) => [pool.poolId, pool]));
     const routes = new Map();
     const splitAmountIn = (amountIn * BigInt(step)) / BigInt(100);
     for (let i = 0; i < 100; i += step) {
         const route = (0, multiHopSwap_1.multiHopSwap)(splitAmountIn, tokenA, tokenB, graph);
-        const routeHash = (0, object_hash_1.default)(route.swaps);
+        const routeHash = getRouteKey(route.swaps);
         let existingRoute = routes.get(routeHash);
         if (!existingRoute) {
             route.percentage = step;
