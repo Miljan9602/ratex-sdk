@@ -31,12 +31,19 @@ export default class UniswapV3 implements DEXGraphFunctionality {
     if (chainId == 42161) {
       this.endpoint = `https://gateway-arbitrum.network.thegraph.com/api/${graphApiKey}/subgraphs/id/FbCGRftH4a3yZugY7TnbYgPJVEv2LvMT6oF1fxPe9aJM`
     }
+
+    if (chainId == 420420417) {
+      this.endpoint = `https://saphyre-service-dev.saphyre.xyz/api/graphql/v3`
+    }
+
     this.chainId = chainId
   }
 
   async getTopPools(numPools: number): Promise<PoolInfo[]> {
     const poolsInfo: PoolInfo[] = []
+
     const queryResult = await request(this.endpoint, queryTopPools(numPools))
+
     queryResult.pools.forEach((pool: any) => {
       poolsInfo.push(createPoolFromGraph(pool, this.dexId))
     })

@@ -1,19 +1,18 @@
-import {RateX, Dexes} from "ratex-sdk";
+import {RateX, Dexes} from "./index";
 
 async function main() {
     const rateX = new RateX({
-        rpcUrl: "https://private-rpc.dragonswap.app/",
-        chainId: 1329,
+        rpcUrl: "https://services.polkadothub-rpc.com/testnet",
+        chainId: 420420417,
         dexes: [Dexes.UNISWAP_V2, Dexes.UNISWAP_V3],
         graphApiKey: "YOUR_GRAPH_API_KEY",
     });
 
-    const tokenIn = "0x0a526e425809aea71eb279d24ae22dee6c92a4fe"; // WETH
-    const tokenOut = "0xe30fedd158a2e3b13e9badaeabafc5516e95e8c7"; // DAI
+    const tokenIn = "0xf59512445f4bf16531130ca5e0fd79004f4b2a34"; // WETH
+    const tokenOut = "0x248fca94596be9746c009641ff8d0fd5075df268"; // DAI
     const amountIn = BigInt("10000000000000000000"); // 1 WETH
 
     const quote = await rateX.getQuote(tokenIn, tokenOut, amountIn);
-    console.log("Best quote:", quote);
 
     const swapParams = await rateX.getSwapParameters(
         tokenIn,

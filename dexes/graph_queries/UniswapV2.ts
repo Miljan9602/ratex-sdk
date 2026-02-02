@@ -28,9 +28,15 @@ export default class UniswapV2 implements DEXGraphFunctionality {
     if (chainId == 1) {
       this.endpoint = `https://gateway-arbitrum.network.thegraph.com/api/${graphApiKey}/subgraphs/id/EYCKATKGBKLWvSfwvBjzfCBmGwYNdVkduYXVivCsLRFu`
     }
+
     if (chainId == 42161) {
       this.endpoint = `https://gateway-arbitrum.network.thegraph.com/api/${graphApiKey}/subgraphs/id/CStW6CSQbHoXsgKuVCrk3uShGA4JX3CAzzv2x9zaGf8w`
     }
+
+    if (chainId == 420420417) {
+      this.endpoint = `https://saphyre-service-dev.saphyre.xyz/api/graphql/v2`
+    }
+
     this.chainId = chainId
   }
 
@@ -41,6 +47,7 @@ export default class UniswapV2 implements DEXGraphFunctionality {
     queryResult.pairs.forEach((pool: any) => {
       poolsInfo.push(createPoolFromGraph(pool, this.dexId, this.chainId))
     })
+
 
     return poolsInfo
   }
