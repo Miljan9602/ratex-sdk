@@ -18,7 +18,7 @@ export class UniswapState {
   public static resetPoolState(poolAddress: string): void {
     const poolState = this.startingPoolStateMap.get(poolAddress.toLowerCase())
     if (poolState) {
-      this.poolStateMap.set(poolAddress.toLowerCase(), poolState)
+      this.poolStateMap.set(poolAddress.toLowerCase(), poolState.clone())
     }
   }
 
